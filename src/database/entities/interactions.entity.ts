@@ -1,5 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
-import { UserEntity } from './user.entity';
+import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, ManyToMany } from 'typeorm';
 
 @Entity('interactions')
 export class InteractionEntity {
@@ -7,15 +6,18 @@ export class InteractionEntity {
   id: string;
 
   @Column()
-  userId: string; // Référence à UserEntity
+  userId: string; 
 
   @Column()
-  action: string; // Action réalisée par l'utilisateur
+  action: string; 
+
+  
+  @Column()
+  category: string; 
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  timestamp: Date; // Date de l'interaction
+  timestamp: Date; 
 
-  // Relation avec l'utilisateur
-  @ManyToOne(() => UserEntity, (user) => user.interactions)
-  user: UserEntity;
+  
 }
+

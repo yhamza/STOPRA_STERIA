@@ -1,11 +1,17 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { StatisticsEntity } from '../database/entities/statistics.entity';
 import { StatisticsService } from './statistics.service';
 import { StatisticsController } from './statistics.controller';
-import { CacheModule } from '../cache/cache.module';  // Importer CacheModule pour la mise en cache
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
-  imports: [CacheModule],  // Le module de cache peut être utilisé pour améliorer les performances
+  imports: [
+  TypeOrmModule.forFeature([StatisticsEntity]),
+  HttpModule
+],
   providers: [StatisticsService],
   controllers: [StatisticsController],
+  exports: [StatisticsService],
 })
 export class StatisticsModule {}

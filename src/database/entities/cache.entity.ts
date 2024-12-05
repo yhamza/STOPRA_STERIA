@@ -1,16 +1,21 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { UserEntity } from './user.entity';
 
 @Entity('cache')
 export class CacheEntity {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id: string; // UUID comme identifiant unique
 
   @Column()
-  key: string; // Clé du cache
+  userId: string; // Référence à l'ID de l'utilisateur dans la table UserEntity
 
   @Column('text')
-  value: string; // Valeur sérialisée
+  value: [{actions:string , category : string , time : Date}]; // Valeur sérialisée contenant [{ action, timestamp }]
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  createdAt: Date; // Date d'expiration
+  createdAt: Date; // Date de création
+
+
+
+
 }

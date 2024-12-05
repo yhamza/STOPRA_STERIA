@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, OneToMany, ManyToMany } from 'typeorm';
 import { InteractionEntity } from './interactions.entity';
 import { StatisticsEntity } from './statistics.entity';
 
@@ -22,13 +22,6 @@ export class UserEntity {
   @Column({ type: 'timestamp', nullable: true })
   updatedAt: Date;
 
-  // Relation avec les interactions
-  @OneToMany(() => InteractionEntity, (interaction) => interaction.user)
-  interactions: InteractionEntity[];
-
-  // Relation avec les statistiques
-  @OneToMany(() => StatisticsEntity, (statistic) => statistic.user)
-  statistics: StatisticsEntity[];
 
 
 }
