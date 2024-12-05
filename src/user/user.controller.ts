@@ -31,13 +31,21 @@ export class UserController {
     return this.userService.login(params, res);
   }
   
-  @UseGuards(JwtAuthGuard, RolesGuard)  // Utilisez JwtAuthGuard, pas JwtStrategy
+  @UseGuards(JwtAuthGuard, RolesGuard) // Utilisez JwtAuthGuard et RolesGuard
   @Get('profile')
-  @Roles(Role.ADMIN)  // Assurez-vous que Role.ADMIN est bien défini
-  async profile(@Req() req: any) {  
-    return req.user;  // Renvoie l'objet utilisateur du token JWT
+  @Roles(Role.ADMIN) // Vérifiez que Role.ADMIN est bien défini
+  async profile(@Req() req: any) {
+    const authHeader = req.headers['authorization'];
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      throw new Error('Token non fourni ou format incorrect');
+    }
+    
+    const token = authHeader.split(' ')[1]; // Récupérer le token après "Bearer"
+    return {
+      user: req.user, // Utilisateur décodé depuis le token JWT
+      token, // Token brut
+    };
   }
-  
   
   
   
