@@ -67,27 +67,31 @@ export class UserController {
   
   
   
-  
+  // Protect findAll route
   @Get()
-  @UseGuards(JwtAuthGuard) // Protect findAll route
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN) 
   findAll() {
     return this.userService.findAll();
   }
 
   @Get(':id')
-  @UseGuards(JwtAuthGuard) // Protect findOne route
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.ADMIN) 
   findOne(@Param('id') id: string) {
     return this.userService.findOne(+id);
   }
 
   @Patch(':id')
-  @UseGuards(JwtAuthGuard) // Protect update route
+  @UseGuards(JwtAuthGuard,RolesGuard)
+  @Roles(Role.ADMIN)  
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.userService.update(+id, updateUserDto);
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard) // Protect delete route
+  @UseGuards(JwtAuthGuard,RolesGuard)
+  @Roles(Role.ADMIN)  
   remove(@Param('id') id: string) {
     return this.userService.remove(+id);
   } 
