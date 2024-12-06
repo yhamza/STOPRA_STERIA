@@ -19,6 +19,7 @@ import { JwtAuthGuard } from '../guards/JwtAuth.Guard';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  //create user
   @Post()  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN) 
   @UsePipes(new ValidationPipe()) 
@@ -26,12 +27,15 @@ export class UserController {
     return this.userService.create(createUserDto);
   }
 
+  //login
   @Post('login') 
   @UsePipes(new ValidationPipe()) 
   async login(@Body() params: LoginUserDto, @Res() res: Response) {
     return this.userService.login(params, res);
   }
-  
+
+
+  //get profile
   @UseGuards(JwtAuthGuard, RolesGuard) 
   @Roles(Role.ADMIN||Role.USER) 
   @Get('profile')
@@ -47,7 +51,13 @@ export class UserController {
     };
   }
   
-  
+  //logout
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN||Role.USER)
+  @Get('logout/:userId')
+  async logout(@Query () userId : string) {
+    return this.userService.logout(userId);
+    }
   
   
   

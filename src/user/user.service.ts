@@ -2,11 +2,14 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '../database/entities/user.entity';
+import { HttpService } from '@nestjs/axios';
 
 @Injectable()
 export class UserService {
+  private   url = process.env.URL || 'http://localhost:3000/api/v1';
   constructor(
     @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
+    private readonly httpService: HttpService
   ) {}
 
   // Création d'un utilisateur
@@ -63,8 +66,14 @@ export class UserService {
     }
   }
 
-
-
+  //logout
+  async logout(userId: string): Promise<void> {
+    try {
+       await this.httpService
+        .get(`${this.url}/setCaches/${userId}`)
+        .toPromise();
+    } catch (err) {throw err;}
+}
 
   
   // Méthode de connexion
