@@ -17,7 +17,7 @@ export class StatisticsService {
     private readonly httpService: HttpService,
   ) {}
 
-
+  // save user stats
   async create (createStatisticDto : any){
     try {
       const newStatistic = await this.statisticsRepository.save(createStatisticDto);
@@ -30,8 +30,18 @@ export class StatisticsService {
             HttpStatus.INTERNAL_SERVER_ERROR
             );
             }
-    }
+  }
 
+  // get user stats
+  async getUserStat(userId : string){
+    try {
+      const userStat = await this.statisticsRepository.findOne({where : {userId : userId}});
+      return userStat;
+      } catch (error) {
+        throw new HttpException(`Erreur lors de la récupération des statistiques de l'utilisateur : ${error.message}`,HttpStatus.INTERNAL_SERVER_ERROR);}
+  }
+
+  //get all user stats
   async getAllUsersStatistics(){
     try {
       const statistics = await this.statisticsRepository.find()
@@ -45,7 +55,6 @@ export class StatisticsService {
   async getstats(){
     const stats = await this.getAllUsersStatistics()
     return await this.calculateGlobalStats(stats)
-    
   }
 
   async calculateGlobalStats(stats: any[]): Promise<any> {
@@ -61,8 +70,6 @@ export class StatisticsService {
       uniqueCategories: stat.uniqueCategories,
       interactionsPerHour: stat.interactionsPerHour,
     }));
-  
-    
     return await calculateStatistics2(formattedStats);
   }
   
@@ -73,10 +80,6 @@ export class StatisticsService {
 
 
 
-  async GlobalStatistics(data:any) {
-
-  }
-  
 
 
 

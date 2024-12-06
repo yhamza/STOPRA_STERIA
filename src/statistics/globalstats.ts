@@ -18,10 +18,8 @@ export interface Statistics {
 }
 
 export function calculateStatistics2(data: Statistics[]): DataEntry {
-  // Initialisation des accumulateurs
   const totalInteractions = data.reduce((sum, item) => sum + item.totalInteractions, 0);
 
-  // Combiner les `categoryBreakdown`
   const categoryBreakdown = data.reduce((acc, item) => {
     Object.entries(item.categoryBreakdown).forEach(([category, count]) => {
       acc[category] = (acc[category] || 0) + count;
@@ -29,7 +27,6 @@ export function calculateStatistics2(data: Statistics[]): DataEntry {
     return acc;
   }, {} as { [key: string]: number });
 
-  // Combiner les `actionBreakdown`
   const actionBreakdown = data.reduce((acc, item) => {
     Object.entries(item.actionBreakdown).forEach(([action, count]) => {
       acc[action] = (acc[action] || 0) + count;
@@ -37,7 +34,6 @@ export function calculateStatistics2(data: Statistics[]): DataEntry {
     return acc;
   }, {} as { [key: string]: number });
 
-  // Trouver les dates les plus anciennes et les plus récentes
   const earliestInteraction = data.reduce(
     (earliest, item) =>
       new Date(item.earliestInteraction) < new Date(earliest)
@@ -54,7 +50,6 @@ export function calculateStatistics2(data: Statistics[]): DataEntry {
     data[0]?.latestInteraction || new Date().toISOString()
   );
 
-  // Liste des actions et catégories uniques
   const uniqueActions = Array.from(
     new Set(data.flatMap((item) => Object.keys(item.actionBreakdown)))
   );

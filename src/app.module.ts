@@ -5,14 +5,14 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 
-// Importation des entités
+// entities importation
 import { UserEntity } from './database/entities/user.entity';
 import { AuthEntity } from './database/entities/auth.entity';
 import { CacheEntity } from './database/entities/cache.entity';
 import { InteractionEntity } from './database/entities/interactions.entity';
 import { StatisticsEntity } from './database/entities/statistics.entity';
 
-// Importation de JwtModule
+// JwtModule Importation  
 import { JwtModule } from '@nestjs/jwt';
 import { InteractionModule } from './interaction/interaction.module';
 import { CachesModule } from './caches/caches.module';
@@ -20,7 +20,7 @@ import { StatisticsModule } from './statistics/statistics.module';
 
 @Module({
   imports: [
-    // Configuration de la base de données
+    // Data Base Configuration 
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.BASE_URL || 'localhost',
@@ -38,13 +38,13 @@ import { StatisticsModule } from './statistics/statistics.module';
       synchronize: true, 
     }),
 
-    // Configuration du JwtModule
+    // JwtModule Configuration  
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'your-secret-key', 
       signOptions: { expiresIn: '60s' }, 
     }),
 
-    // Importation des modules
+    // modules Importations 
     AuthModule,
     CachesModule,
     UserModule,

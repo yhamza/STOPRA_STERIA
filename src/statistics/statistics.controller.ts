@@ -7,11 +7,11 @@ export class StatisticsController {
   constructor(private readonly statisticsService: StatisticsService) {}
 
 
-
+  //get  user statistics
   @Get('/:userId')
   async saveStat(@Param('userId') userId: string){
     try {
-      return await this.statisticsService.calculateStatistics(userId);
+      return await this.statisticsService.getUserStat(userId);
       } catch (error) {
         throw new HttpException(
           error.message || "Erreur lors de la sauvegarde des statistiques de l'utilisateur.",
@@ -20,6 +20,7 @@ export class StatisticsController {
         }
   }
 
+  //save user statistics
   @Post()
   async saveStatistics(@Body() statistics: StatisticsEntity): Promise<any> {
     try {
@@ -33,10 +34,10 @@ export class StatisticsController {
   }
 
 
-  // @Get()
-  // getAllUsersStatistics(){
-  //   return this.statisticsService.getAllUsersStatistics();
-  // }
+  //  @Get()
+  //  getAllUsersStatistzics(){
+  //    return this.statisticsService.getAllUsersStatistics();
+  //  }
 
 
   @Get()
