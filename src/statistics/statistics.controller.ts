@@ -33,10 +33,18 @@ export class StatisticsController {
   }
 
 
+  // @Get()
+  // getAllUsersStatistics(){
+  //   return this.statisticsService.getAllUsersStatistics();
+  // }
+
+
   @Get()
   getAllUsersStatistics(){
-    return this.statisticsService.getAllUsersStatistics();
+    return this.statisticsService.getstats();
   }
+
+  
 
   
 

@@ -5,7 +5,8 @@ import { StatisticsEntity } from '../database/entities/statistics.entity';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import { CreateStatisticDTO } from 'src/database/dto/Statistic/Statistic.dto';
-
+import {calculateStatistics2} from './globalstats'
+import { DataEntry} from './globalstats'
 @Injectable()
 export class StatisticsService {
   private readonly cacheUrl = process.env.CACHE_URL || 'http://localhost:3000/api/v1/caches';
@@ -33,22 +34,75 @@ export class StatisticsService {
 
   async getAllUsersStatistics(){
     try {
-      const statistics = await this.statisticsRepository.find();
-      return statistics;
+      const statistics = await this.statisticsRepository.find()
+      return statistics
       } catch (error) {
         throw new HttpException(
           `Erreur lors de la récupération des statistiques : ${error.message}`,HttpStatus.INTERNAL_SERVER_ERROR);
         } 
   }
   
+  async getstats(){
+    const stats = await this.getAllUsersStatistics()
+    return await this.calculateGlobalStats(stats)
+    
+  }
+
+  async calculateGlobalStats(stats: any[]): Promise<any> {
+    const formattedStats = stats.map((stat) => ({
+      id: stat.id,
+      userId: stat.userId,
+      categoryBreakdown: stat.categoryBreakdown,
+      actionBreakdown: stat.actionBreakdown,
+      totalInteractions: stat.totalInteractions,
+      earliestInteraction: stat.earliestInteraction.toISOString(), // Convertir Date en string
+      latestInteraction: stat.latestInteraction.toISOString(), // Convertir Date en string
+      uniqueActions: stat.uniqueActions,
+      uniqueCategories: stat.uniqueCategories,
+      interactionsPerHour: stat.interactionsPerHour,
+    }));
+  
+    
+    return await calculateStatistics2(formattedStats);
+  }
   
   
   
   
+
+
+
+
+  async GlobalStatistics(data:any) {
+
+  }
   
-  
-  
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   
   async saveStatistics(data: any) {
       try {
@@ -103,7 +157,6 @@ export class StatisticsService {
         "totalInteractions":totalInteractions,
         "earliestInteraction":earliestInteraction,
         "latestInteraction":latestInteraction,
-        //  createdAt,
         "uniqueActions":uniqueActions,
         "uniqueCategories":uniqueCategories,
         "interactionsPerHour": interactionsPerHour,
@@ -119,6 +172,12 @@ export class StatisticsService {
         return acc;
       }, {} as Record<string, number>);
     }
+
+
+
+
+
+
 
 
 
