@@ -1,33 +1,26 @@
-import { IsString, IsNotEmpty, IsArray, IsDate, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsArray, IsString, IsNotEmpty, IsDateString, ArrayMinSize, IsObject } from 'class-validator';
 
-class CacheValueDto {
+class ValueDTO {
   @IsString()
   @IsNotEmpty()
-  actions: string;
+  action: string;
 
   @IsString()
   @IsNotEmpty()
   category: string;
 
-  @IsDate()
-  @Type(() => Date)
-  time: Date;
+  @IsDateString()
+  @IsNotEmpty()
+  time: string;
 }
 
-export class CreateCacheDto {
+export class CreateCacheDTO {
   @IsString()
   @IsNotEmpty()
   userId: string;
 
   @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => CacheValueDto)
-  value: CacheValueDto[];
-
-  @IsDate()
-  @Type(() => Date)
-  createdAt: Date;
-
-
+  @ArrayMinSize(1)
+  @IsObject({ each: true })
+  value: ValueDTO[];
 }

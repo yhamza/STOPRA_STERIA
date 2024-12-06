@@ -1,13 +1,13 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { CachesService } from './caches.service';
-import { CreateCacheDto } from '../database/dto/Caches/Cache.dto';
+import { CreateCacheDTO } from '../database/dto/Caches/Cache.dto';
 
 @Controller('caches')
 export class CachesController {
   constructor(private readonly cachesService: CachesService) {}
 
   @Post()
-  create(@Body() createCachDto: CreateCacheDto) {
+  create(@Body() createCachDto: CreateCacheDTO) {
     return this.cachesService.create(createCachDto);
   }
 

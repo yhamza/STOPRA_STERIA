@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { 
+  Entity, 
+  PrimaryGeneratedColumn, 
+  Column, 
+  CreateDateColumn, 
+  UpdateDateColumn 
+} from 'typeorm';
 import { IsJSON, IsString, IsNumber, IsDate } from 'class-validator';
 
 @Entity('statistics')
@@ -10,35 +16,35 @@ export class StatisticsEntity {
   @IsString()
   userId: string;
 
-  @Column({ type: 'jsonb', nullable: false })
+  @Column({ type: 'jsonb', nullable: false, default: '{}' })
   @IsJSON()
   categoryBreakdown: Record<string, number>;
 
-  @Column({ type: 'jsonb', nullable: false })
+  @Column({ type: 'jsonb', nullable: false, default: '{}' })
   @IsJSON()
   actionBreakdown: Record<string, number>;
 
-  @Column({ type: 'int', nullable: false })
+  @Column({ type: 'int', nullable: false, default: 0 })
   @IsNumber()
   totalInteractions: number;
 
-  @Column({ type: 'int', nullable: false })
+  @Column({ type: 'int', nullable: false, default: 0 })
   @IsNumber()
   uniqueActions: number;
 
-  @Column({ type: 'int', nullable: false })
+  @Column({ type: 'int', nullable: false, default: 0 })
   @IsNumber()
   uniqueCategories: number;
 
-  @Column({ type: 'timestamp', nullable: false })
+  @Column({ type: 'timestamp', nullable: false, default: () => 'CURRENT_TIMESTAMP' })
   @IsDate()
   earliestInteraction: Date;
 
-  @Column({ type: 'timestamp', nullable: false })
+  @Column({ type: 'timestamp', nullable: false, default: () => 'CURRENT_TIMESTAMP' })
   @IsDate()
   latestInteraction: Date;
 
-  @Column({ type: 'float', nullable: false })
+  @Column({ type: 'float', nullable: false, default: 0 })
   @IsNumber()
   interactionsPerHour: number;
 
@@ -52,7 +58,10 @@ export class StatisticsEntity {
   @UpdateDateColumn({ type: 'timestamp' })
   updatedAt: Date;
 
-  // Optional method to create an instance from raw statistics
+  /**
+   * Crée une nouvelle instance de StatisticsEntity à partir des statistiques brutes.
+   * @param stats Objet contenant les données des statistiques.
+   */
   static fromStatistics(stats: any): StatisticsEntity {
     const entity = new StatisticsEntity();
     entity.userId = stats.userId || 'unknown';
@@ -67,7 +76,4 @@ export class StatisticsEntity {
     entity.additionalMetadata = stats.additionalMetadata || {};
     return entity;
   }
-
-
-
 }

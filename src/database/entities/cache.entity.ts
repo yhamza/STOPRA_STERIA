@@ -1,5 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { UserEntity } from './user.entity';
+import { Column, Entity, PrimaryGeneratedColumn, CreateDateColumn } from 'typeorm';
 
 @Entity('cache')
 export class CacheEntity {
@@ -7,15 +6,11 @@ export class CacheEntity {
   id: string; // UUID comme identifiant unique
 
   @Column()
-  userId: string; // Référence à l'ID de l'utilisateur dans la table UserEntity
+  userId: string; // Référence à l'ID de l'utilisateur
 
-  @Column('text')
-  value: [{actions:string , category : string , time : Date}]; // Valeur sérialisée contenant [{ action, timestamp }]
+  @Column('jsonb')
+  value: { action: string; category: string; time: string }[]; // Tableau d'objets contenant l'action, la catégorie et le timestamp
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  createdAt: Date; // Date de création
-
-
-
-
+  @CreateDateColumn({ type: 'timestamp' })
+  createdAt: Date; // Date de création automatique
 }

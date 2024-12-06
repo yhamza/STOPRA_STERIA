@@ -69,6 +69,8 @@ export class InteractionService {
   async setCache(userId: string) {
     const allInteractions = await this.findByUserId(userId);
 
+    console.log("aaa",allInteractions);
+    // const t = Object.allInteractions()
     const Cachesformat = {
       userId: userId,
       value: allInteractions.map(interaction => ({
@@ -78,6 +80,7 @@ export class InteractionService {
       })),
     };
 
+    console.log("vvvvvvvvvvv",Cachesformat);
     
     // Envoi de la requête HTTP POST vers le contrôleur Caches
     try {

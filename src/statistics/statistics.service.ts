@@ -1,172 +1,163 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { StatisticsEntity } from '../database/entities/statistics.entity';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 
-interface InteractionData {
-  id: string;
-  userId: string;
-  value: string;
-  createdAt: string;
-}
-
-interface Interaction {
-  action: string;
-  category: string;
-  time: string;
-}
-
 @Injectable()
 export class StatisticsService {
-  private readonly logger = new Logger(StatisticsService.name);
-  private readonly url = process.env.URL || 'http://localhost:3000/api/v1';
+  private readonly cacheUrl = process.env.CACHE_URL || 'http://localhost:3000/api/v1/caches';
 
   constructor(
     @InjectRepository(StatisticsEntity)
     private readonly statisticsRepository: Repository<StatisticsEntity>,
-    private readonly httpService: HttpService
+    private readonly httpService: HttpService,
   ) {}
 
-  // User-specific statistics
-  async userStatistics(userId: string): Promise<any> {
+  /**
+   * Récupère les statistiques d'un utilisateur via le service des caches.
+   */
+  async getUserStatistics(userId: string): Promise<StatisticsEntity> {
     try {
       const response = await lastValueFrom(
-        this.httpService.get(`${this.url}/caches/${userId}`)
+        this.httpService.get(`${this.cacheUrl}/${userId}`),
       );
-      return this.calculateStatistics(response.data);
-    } catch (error) {
-      this.logger.error(`Error fetching user statistics: ${error.message}`, error.stack);
-      throw new Error(`Failed to retrieve user statistics: ${error.message}`);
-    }
-  }
 
-  // Global users statistics
-  async usersStatistics(): Promise<any> {
-    try {
-      const response = await lastValueFrom(
-        this.httpService.get(`${this.url}/caches`)
-      );
-      return this.calculateGlobalStatistics(response.data);
-    } catch (error) {
-      this.logger.error(`Error fetching global statistics: ${error.message}`, error.stack);
-      throw new Error(`Failed to retrieve global statistics: ${error.message}`);
-    }
-  }
-
-  // Calculate global statistics
-  async calculateGlobalStatistics(data: any[]): Promise<StatisticsEntity[]> {
-    try {
-      const statsMap = new Map<string, number>();
-
-      data.forEach((item) => {
-        const interactions = JSON.parse(item.value);
-        interactions.forEach((interaction) => {
-          const parsedInteraction = JSON.parse(interaction);
-          const key = parsedInteraction.category;
-          statsMap.set(key, (statsMap.get(key) || 0) + 1);
-        });
-      });
-
-      const statistics: StatisticsEntity[] = [];
-
-      for (const [feature, usageCount] of statsMap) {
-        const stat = this.statisticsRepository.create({ 
-          feature, 
-          usageCount,
-          createdAt: new Date() 
-        });
-        const savedStat = await this.statisticsRepository.save(stat);
-        statistics.push(savedStat);
+      if (!response.data) {
+        throw new HttpException('Données introuvables', HttpStatus.NOT_FOUND);
       }
 
-      return statistics;
+      const statistics = this.calculateStatistics(response.data);
+      return await this.saveStatistics(userId, statistics);
     } catch (error) {
-      this.logger.error(`Error in global statistics calculation: ${error.message}`, error.stack);
-      throw new Error(`Failed to calculate global statistics: ${error.message}`);
-    }
-  }
-
-  // Comprehensive statistics calculation
-  calculateStatistics(data: InteractionData[]): any {
-    try {
-      // Parse the nested JSON strings
-      const parsedInteractions = data.map(item => 
-        JSON.parse(item.value).map((interaction: string) => 
-          JSON.parse(interaction)
-        )
+      throw new HttpException(
+        `Erreur lors de la récupération des statistiques : ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
-
-      // Flatten the interactions
-      const allInteractions = parsedInteractions.flat();
-
-      // Group interactions by category and action
-      const categoryBreakdown = this.groupByCategory(allInteractions);
-      const actionBreakdown = this.groupByAction(allInteractions);
-
-      // Calculate user-specific metrics
-      const userMetrics = this.calculateUserMetrics(data, parsedInteractions);
-
-      return {
-        totalInteractions: allInteractions.length,
-        uniqueUsers: new Set(data.map(item => item.userId)).size,
-        categoryBreakdown,
-        actionBreakdown,
-        userMetrics,
-        timespan: this.calculateTimespan(data),
-        interactionsPerHour: this.calculateInteractionsPerHour(data)
-      };
-    } catch (error) {
-      this.logger.error(`Error in statistics calculation: ${error.message}`, error.stack);
-      throw new Error(`Failed to calculate statistics: ${error.message}`);
     }
   }
 
-  // Private helper methods remain the same as in the original implementation
-  private groupByCategory(interactions: Interaction[]) {
-    return interactions.reduce((acc, interaction) => {
-      acc[interaction.category] = (acc[interaction.category] || 0) + 1;
+  /**
+   * Calcule les statistiques à partir des interactions récupérées.
+   */
+  private async calculateStatistics(data: any) {
+    if (!data || !data.value) {
+      throw new Error("Les données ou la valeur des interactions sont manquantes.");
+    }
+    
+    
+    // console.log(interactions);
+    console.log("aaaaaaaaa",data);
+   
+    
+
+    
+    try {
+      // Désérialisation de `value` s'il s'agit d'une chaîne JSON
+      // interactions = JSON.parse(data.value);
+      // console.log("aaaaaaaaaaaa",interactions[0]);
+      
+    } catch (error) {
+      throw new Error("Impossible de parser la valeur des interactions.");
+    }
+    // console.log(interactions);
+    
+    // if (!Array.isArray(interactions)) {
+    //   throw new Error("Les interactions désérialisées ne sont pas un tableau.");
+    // }
+  
+    // // Extraire les catégories et actions
+    // const allCategories = interactions.map((interaction) => interaction.category);
+    // const allActions = interactions.map((interaction) => interaction.action);
+  
+    // const categoryBreakdown = this.groupBy(allCategories);
+    // const actionBreakdown = this.groupBy(allActions);
+  
+    // const totalInteractions = interactions.length;
+    // const uniqueActions = new Set(allActions).size;
+    // const uniqueCategories = new Set(allCategories).size;
+  
+    // const timestamps = interactions.map((item) => new Date(item.time).getTime());
+    // const earliestInteraction = new Date(Math.min(...timestamps));
+    // const latestInteraction = new Date(Math.max(...timestamps));
+    // const durationInHours =
+    //   (Math.max(...timestamps) - Math.min(...timestamps)) / (1000 * 60 * 60);
+    // const interactionsPerHour = totalInteractions / (durationInHours || 1);
+  
+    // return {
+    //   categoryBreakdown,
+    //   actionBreakdown,
+    //   totalInteractions,
+    //   uniqueActions,
+    //   uniqueCategories,
+    //   timespan: { earliestInteraction, latestInteraction },
+    //   interactionsPerHour,
+    // };
+  }
+  
+
+  /**
+   * Enregistre les statistiques calculées dans la base de données.
+   */
+  private async saveStatistics(
+    userId: string,
+    stats: any,
+  ): Promise<StatisticsEntity> {
+    const entity = StatisticsEntity.fromStatistics({
+      userId,
+      ...stats,
+    });
+
+    return await this.statisticsRepository.save(entity);
+  }
+
+  /**
+   * Regroupe les données et calcule leur occurrence.
+   */
+  private groupBy(data: string[]): Record<string, number> {
+    return data.reduce((acc, item) => {
+      acc[item] = (acc[item] || 0) + 1;
       return acc;
-    }, {});
+    }, {} as Record<string, number>);
   }
 
-  private groupByAction(interactions: Interaction[]) {
-    return interactions.reduce((acc, interaction) => {
-      acc[interaction.action] = (acc[interaction.action] || 0) + 1;
-      return acc;
-    }, {});
+  /**
+   * Récupère les statistiques globales pour tous les utilisateurs.
+   */
+  async getGlobalStatistics(): Promise<any> {
+    try {
+      const response = await lastValueFrom(this.httpService.get(this.cacheUrl));
+
+      if (!response.data) {
+        throw new HttpException('Données introuvables', HttpStatus.NOT_FOUND);
+      }
+
+      return this.calculateGlobalStatistics(response.data);
+    } catch (error) {
+      throw new HttpException(
+        `Erreur lors de la récupération des statistiques globales : ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
-  private calculateUserMetrics(
-    data: InteractionData[], 
-    parsedInteractions: Interaction[][]
-  ) {
-    return data.map((item, index) => ({
-      userId: item.userId,
-      totalInteractions: parsedInteractions[index].length,
-      uniqueActions: new Set(parsedInteractions[index].map(i => i.action)).size,
-      uniqueCategories: new Set(parsedInteractions[index].map(i => i.category)).size,
-      lastInteractionTime: parsedInteractions[index][parsedInteractions[index].length - 1].time
-    }));
-  }
+  /**
+   * Calcule les statistiques globales.
+   */
+  private calculateGlobalStatistics(data: any[]): any {
+    const allCategories = data.flatMap((item) => item.values.map((v) => v.category));
+    const allActions = data.flatMap((item) => item.values.map((v) => v.action));
+    const totalInteractions = allCategories.length;
 
-  private calculateTimespan(data: InteractionData[]) {
-    const timestamps = data.map(item => new Date(item.createdAt).getTime());
+    const categoryBreakdown = this.groupBy(allCategories);
+    const actionBreakdown = this.groupBy(allActions);
+
     return {
-      earliest: new Date(Math.min(...timestamps)),
-      latest: new Date(Math.max(...timestamps)),
-      durationInMinutes: (Math.max(...timestamps) - Math.min(...timestamps)) / (1000 * 60)
-    };
-  }
-
-  private calculateInteractionsPerHour(data: InteractionData[]) {
-    const timestamps = data.map(item => new Date(item.createdAt).getTime());
-    const timespan = this.calculateTimespan(data);
-    const hours = timespan.durationInMinutes / 60;
-    return {
-      total: data.length / hours,
-      perHour: data.length / (hours || 1)
+      totalInteractions,
+      uniqueUsers: data.length,
+      categoryBreakdown,
+      actionBreakdown,
     };
   }
 }

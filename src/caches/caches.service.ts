@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateCacheDto } from '../database/dto/Caches/Cache.dto';
+import { CreateCacheDTO } from '../database/dto/Caches/Cache.dto';
 import { Repository } from 'typeorm';
 import { CacheEntity } from 'src/database/entities/cache.entity';
 
@@ -13,8 +13,10 @@ export class CachesService {
   ) {}
 
   
-  create(createCachDto: CreateCacheDto) {
+  create(createCachDto: CreateCacheDTO) {
     const newCache = this.cacheRepository.create(createCachDto);
+    console.log("cccca",createCachDto);
+    
     return this.cacheRepository.save(newCache)
      
   }
