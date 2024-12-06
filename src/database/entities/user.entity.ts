@@ -1,6 +1,4 @@
 import { Column, Entity, PrimaryGeneratedColumn, OneToMany, ManyToMany } from 'typeorm';
-import { InteractionEntity } from './interactions.entity';
-import { StatisticsEntity } from './statistics.entity';
 
 @Entity('users')
 export class UserEntity {

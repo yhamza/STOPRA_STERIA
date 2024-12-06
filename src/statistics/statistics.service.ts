@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { StatisticsEntity } from '../database/entities/statistics.entity';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
+import { CreateStatisticDTO } from 'src/database/dto/Statistic/Statistic.dto';
 
 @Injectable()
 export class StatisticsService {
@@ -15,102 +16,53 @@ export class StatisticsService {
     private readonly httpService: HttpService,
   ) {}
 
-  /**
-   * Récupère les statistiques d'un utilisateur via le service des caches.
-   */
-  async getUserStatistics(userId: string): Promise<StatisticsEntity> {
-    try {
-      const response = await lastValueFrom(
-        this.httpService.get(`${this.cacheUrl}/${userId}`),
-      );
 
-      if (!response.data) {
-        throw new HttpException('Données introuvables', HttpStatus.NOT_FOUND);
-      }
 
-      const statistics = this.calculateStatistics(response.data);
-      return await this.saveStatistics(userId, statistics);
-    } catch (error) {
-      throw new HttpException(
-        `Erreur lors de la récupération des statistiques : ${error.message}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  /**
-   * Calcule les statistiques à partir des interactions récupérées.
-   */
-  private async calculateStatistics(data: any) {
+   async calculateStatistics(data: any) {
     if (!data || !data.value) {
       throw new Error("Les données ou la valeur des interactions sont manquantes.");
     }
+    const interactions = data.value.map(item => ({
+      userId: data.userId,
+      createdAt: data.createdAt,
+      action: item.action,
+      category: item.category,
+      time: item.time
+    }));
+    console.log("3asba");
     
-    
-    // console.log(interactions);
-    console.log("aaaaaaaaa",data);
-   
-    
-
-    
-    try {
-      // Désérialisation de `value` s'il s'agit d'une chaîne JSON
-      // interactions = JSON.parse(data.value);
-      // console.log("aaaaaaaaaaaa",interactions[0]);
-      
-    } catch (error) {
-      throw new Error("Impossible de parser la valeur des interactions.");
-    }
-    // console.log(interactions);
-    
-    // if (!Array.isArray(interactions)) {
-    //   throw new Error("Les interactions désérialisées ne sont pas un tableau.");
-    // }
-  
     // // Extraire les catégories et actions
-    // const allCategories = interactions.map((interaction) => interaction.category);
-    // const allActions = interactions.map((interaction) => interaction.action);
-  
-    // const categoryBreakdown = this.groupBy(allCategories);
-    // const actionBreakdown = this.groupBy(allActions);
-  
-    // const totalInteractions = interactions.length;
-    // const uniqueActions = new Set(allActions).size;
-    // const uniqueCategories = new Set(allCategories).size;
-  
-    // const timestamps = interactions.map((item) => new Date(item.time).getTime());
-    // const earliestInteraction = new Date(Math.min(...timestamps));
-    // const latestInteraction = new Date(Math.max(...timestamps));
-    // const durationInHours =
-    //   (Math.max(...timestamps) - Math.min(...timestamps)) / (1000 * 60 * 60);
-    // const interactionsPerHour = totalInteractions / (durationInHours || 1);
-  
-    // return {
-    //   categoryBreakdown,
-    //   actionBreakdown,
-    //   totalInteractions,
-    //   uniqueActions,
-    //   uniqueCategories,
-    //   timespan: { earliestInteraction, latestInteraction },
-    //   interactionsPerHour,
-    // };
+     const allCategories = interactions.map((interaction) => interaction.category);
+     const allActions = interactions.map((interaction) => interaction.action);
+     const categoryBreakdown = this.groupBy(allCategories);
+     const actionBreakdown = this.groupBy(allActions);  
+     const totalInteractions = interactions.length;
+     const uniqueActions = new Set(allActions).size;
+     const uniqueCategories = new Set(allCategories).size;
+     const timestamps = interactions.map((item) => new Date(item.time).getTime());
+     const earliestInteraction = new Date(Math.min(...timestamps));
+     const latestInteraction = new Date(Math.max(...timestamps));
+     const durationInHours =
+       (Math.max(...timestamps) - Math.min(...timestamps)) / (1000 * 60 * 60);
+     const interactionsPerHour = totalInteractions / (durationInHours || 1);     
+     const createdAt = Date.now()
+     const stat= {
+      "categoryBreakdown":categoryBreakdown,
+      "actionBreakdown":actionBreakdown,
+      "totalInteractions":totalInteractions,
+      "earliestInteraction":earliestInteraction,
+      "latestInteraction":latestInteraction,
+      //  createdAt,
+      "uniqueActions":uniqueActions,
+      "uniqueCategories":uniqueCategories,
+      "interactionsPerHour": interactionsPerHour,
+     };
+     console.log("zaq",stat);
+     return  stat
+     
   }
   
 
-  /**
-   * Enregistre les statistiques calculées dans la base de données.
-   */
-  private async saveStatistics(
-    userId: string,
-    stats: any,
-  ): Promise<StatisticsEntity> {
-    const entity = StatisticsEntity.fromStatistics({
-      userId,
-      ...stats,
-    });
-
-    return await this.statisticsRepository.save(entity);
-  }
 
   /**
    * Regroupe les données et calcule leur occurrence.
@@ -160,4 +112,41 @@ export class StatisticsService {
       actionBreakdown,
     };
   }
+
+
+  async saveStatistics2(data: any) {
+    try {
+      // Calcul des statistiques
+      const newStat = await this.calculateStatistics(data);
+      console.log("Statistics calculated:", newStat);
+
+      // Enregistrement des statistiques
+          return this.create(newStat)
+    } catch (err) {
+      // Gestion des erreurs
+      console.error("Error saving statistics:", err);
+      throw new Error("Failed to save statistics.");
+    }
+  }
+  
+  async create (createStatisticDto : any){
+    try {
+      const newStatistic = await this.statisticsRepository.save(createStatisticDto);
+      return newStatistic;
+      } catch (error) {
+        throw new HttpException(
+          `Erreur lors de la création d'une statistique : ${error.message
+            }`
+            ,
+            HttpStatus.INTERNAL_SERVER_ERROR
+            );
+            }
+    }
+
+
+  
+
+
+
+
 }

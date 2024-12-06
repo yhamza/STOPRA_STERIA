@@ -1,62 +1,22 @@
-import { IsString, IsOptional, IsNumber, IsJSON, IsDate, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsObject, IsNotEmpty, IsNumber, IsString, IsArray, IsDateString, IsOptional } from 'class-validator';
 
-export class StatisticsDto {
-  @IsString()
-  userId: string;
+export class CreateStatisticDTO {
+  categoryBreakdown: {
+    content_interaction: number;
+    auth_interaction: number;
+};
 
-  @IsJSON()
-  @IsOptional()
-  categoryBreakdown?: Record<string, number>;
+actionBreakdown: {
+    like: number;
+    login: number;
+};
 
-  @IsJSON()
-  @IsOptional()
-  actionBreakdown?: Record<string, number>;
+totalInteractions: number;
 
-  @IsNumber()
-  totalInteractions: number;
+earliestInteraction: string; // ISO 8601 timestamp
+latestInteraction: string; // ISO 8601 timestamp
 
-  @IsNumber()
-  uniqueActions: number;
-
-  @IsNumber()
-  uniqueCategories: number;
-
-  @IsDate()
-  @Type(() => Date)
-  earliestInteraction: Date;
-
-  @IsDate()
-  @Type(() => Date)
-  latestInteraction: Date;
-
-  @IsNumber()
-  interactionsPerHour: number;
-
-  @IsJSON()
-  @IsOptional()
-  additionalMetadata?: Record<string, any>;
-
-  // Nested class for timespan
-  @ValidateNested()
-  @Type(() => TimespanDto)
-  @IsOptional()
-  timespan?: TimespanDto;
+uniqueActions: number;
+uniqueCategories: number;
+interactionsPerHour: number;
 }
-
-// Nested DTO for timespan
-export class TimespanDto {
-  @IsDate()
-  @Type(() => Date)
-  earliest: Date;
-
-  @IsDate()
-  @Type(() => Date)
-  latest: Date;
-
-  @IsNumber()
-  @IsOptional()
-  durationInMinutes?: number;
-}
-
-

@@ -15,8 +15,6 @@ export class CachesService {
   
   create(createCachDto: CreateCacheDTO) {
     const newCache = this.cacheRepository.create(createCachDto);
-    console.log("cccca",createCachDto);
-    
     return this.cacheRepository.save(newCache)
      
   }

@@ -68,8 +68,6 @@ export class InteractionService {
   
   async setCache(userId: string) {
     const allInteractions = await this.findByUserId(userId);
-
-    console.log("aaa",allInteractions);
     // const t = Object.allInteractions()
     const Cachesformat = {
       userId: userId,
@@ -79,9 +77,6 @@ export class InteractionService {
         time: interaction.timestamp,  
       })),
     };
-
-    console.log("vvvvvvvvvvv",Cachesformat);
-    
     // Envoi de la requête HTTP POST vers le contrôleur Caches
     try {
       
@@ -90,11 +85,22 @@ export class InteractionService {
         .post(`${this.url}/caches`, Cachesformat)
         .toPromise();
 
-      return response.data; // Renvoie la réponse de CachesController
+        console.log("response from caches" , response.data);
+        try {
+          const response2=await this.httpService
+          .post(`${this.url}/statistics`,response.data)
+          .toPromise()
+          console.log("response from statistic",response2.data);
+          
+          // return response2.data; 
+        } catch (error) {
+          console.log(error);
+          throw new Error("Erreur lors de l'envoi de la requête à StatisticsController");
+          
+        }
+      // return response.data; // Renvoie la réponse de CachesController
     } catch (error) {
       console.log(error);
-      
-      
       throw new Error("Erreur lors de l'envoi de la requête à CachesController");
     }
   }
