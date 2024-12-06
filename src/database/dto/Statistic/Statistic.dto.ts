@@ -16,8 +16,8 @@ actionBreakdown: {
 
 totalInteractions: number;
 
-earliestInteraction: string; // ISO 8601 timestamp
-latestInteraction: string; // ISO 8601 timestamp
+earliestInteraction: string; 
+latestInteraction: string; 
 
 uniqueActions: number;
 uniqueCategories: number;

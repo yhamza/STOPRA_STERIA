@@ -12,7 +12,7 @@ export class CreateUserDto {
   password: string;
 
   @IsString()
-  @IsOptional() // Optionnel, par défaut "USER"
+  @IsOptional() 
   role?: string;
 }
 
@@ -45,6 +45,6 @@ export class LoginUserDto {
 export class RegisterUserDto {
     email: string;
     password: string;
-    role?: string; // Optionnel, par défaut "USER"
+    role?: string; 
   }
   

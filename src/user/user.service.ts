@@ -16,7 +16,6 @@ export class UserService {
       await this.userRepository.save(user);
       return user;
     } catch (err) {
-      console.error('Error creating user:', err);
       throw err;
     }
   }
@@ -30,7 +29,6 @@ export class UserService {
       }
       return user;
     } catch (err) {
-      console.error('Error finding user:', err);
       throw err;
     }
   }
@@ -40,7 +38,6 @@ export class UserService {
     try {
       return await this.userRepository.find();
     } catch (err) {
-      console.error('Error finding users:', err);
       throw err;
     }
   }
@@ -52,7 +49,6 @@ export class UserService {
       Object.assign(user, params); // Appliquer les changements
       return await this.userRepository.save(user);
     } catch (err) {
-      console.error('Error updating user:', err);
       throw err;
     }
   }
@@ -63,7 +59,6 @@ export class UserService {
       const user = await this.findOne(id); // Vérifier que l'utilisateur existe
       await this.userRepository.remove(user);
     } catch (err) {
-      console.error('Error deleting user:', err);
       throw err;
     }
   }
@@ -79,7 +74,6 @@ export class UserService {
       // Redirige vers l'URL avec les paramètres ajoutés
        res.redirect(`http://localhost:3000/auth/login?${query}`);
     } catch (err) {
-      console.error('Error during login:', err);
       throw err;
     }
   }

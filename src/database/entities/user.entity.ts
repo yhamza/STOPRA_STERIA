@@ -11,7 +11,7 @@ export class UserEntity {
   @Column()
   password: string;
 
-  @Column({ default: 'USER' }) // Rôles possibles : ADMIN, ANALYST, USER
+  @Column({ default: 'USER' }) 
   role: string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

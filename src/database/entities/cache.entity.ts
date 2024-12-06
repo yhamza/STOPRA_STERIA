@@ -3,14 +3,14 @@ import { Column, Entity, PrimaryGeneratedColumn, CreateDateColumn } from 'typeor
 @Entity('cache')
 export class CacheEntity {
   @PrimaryGeneratedColumn('uuid')
-  id: string; // UUID comme identifiant unique
+  id: string; 
 
   @Column()
-  userId: string; // Référence à l'ID de l'utilisateur
+  userId: string; 
 
   @Column('jsonb')
-  value: { action: string; category: string; time: string }[]; // Tableau d'objets contenant l'action, la catégorie et le timestamp
+  value: { action: string; category: string; time: string }[];
 
   @CreateDateColumn({ type: 'timestamp' })
-  createdAt: Date; // Date de création automatique
+  createdAt: Date; 
 }

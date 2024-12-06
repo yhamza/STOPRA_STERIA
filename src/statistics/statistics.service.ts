@@ -2,34 +2,25 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { StatisticsEntity } from '../database/entities/statistics.entity';
-import { HttpService } from '@nestjs/axios';
-import { lastValueFrom } from 'rxjs';
-import { CreateStatisticDTO } from 'src/database/dto/Statistic/Statistic.dto';
 import {calculateStatistics2} from './globalstats'
-import { DataEntry} from './globalstats'
 @Injectable()
 export class StatisticsService {
-  private readonly cacheUrl = process.env.CACHE_URL || 'http://localhost:3000/api/v1/caches';
+  private   url = process.env.URL || 'http://localhost:3000/api/v1';
 
   constructor(
     @InjectRepository(StatisticsEntity)
     private readonly statisticsRepository: Repository<StatisticsEntity>,
-    private readonly httpService: HttpService,
   ) {}
 
   // save user stats
   async create (createStatisticDto : any){
     try {
       const newStatistic = await this.statisticsRepository.save(createStatisticDto);
+
       return newStatistic;
       } catch (error) {
         throw new HttpException(
-          `Erreur lors de la création d'une statistique : ${error.message
-            }`
-            ,
-            HttpStatus.INTERNAL_SERVER_ERROR
-            );
-            }
+          `Erreur lors de la création d'une statistique : ${error.message}`,HttpStatus.INTERNAL_SERVER_ERROR);}
   }
 
   // get user stats
@@ -64,8 +55,8 @@ export class StatisticsService {
       categoryBreakdown: stat.categoryBreakdown,
       actionBreakdown: stat.actionBreakdown,
       totalInteractions: stat.totalInteractions,
-      earliestInteraction: stat.earliestInteraction.toISOString(), // Convertir Date en string
-      latestInteraction: stat.latestInteraction.toISOString(), // Convertir Date en string
+      earliestInteraction: stat.earliestInteraction.toISOString(), 
+      latestInteraction: stat.latestInteraction.toISOString(), 
       uniqueActions: stat.uniqueActions,
       uniqueCategories: stat.uniqueCategories,
       interactionsPerHour: stat.interactionsPerHour,
@@ -111,7 +102,6 @@ export class StatisticsService {
       try {
         // Calcul des statistiques
         const newStat = await this.calculateStatistics(data);
-        console.log("Statistics calculated:", newStat);
   
         // Enregistrement des statistiques
             return this.create(newStat)
@@ -127,7 +117,6 @@ export class StatisticsService {
       if (!data || !data.value) {
         throw new Error("Les données ou la valeur des interactions sont manquantes.");
       }
-      console.log("aaaaaaaaaaaaaaaaaaaaaa",data);
       
       const interactions = data.value.map(item => ({
         userId: data.userId,
@@ -136,7 +125,6 @@ export class StatisticsService {
         category: item.category,
         time: item.time
       }));
-      console.log("3asba");
       
       // // Extraire les catégories et actions
        const allCategories = interactions.map((interaction) => interaction.category);
@@ -164,7 +152,6 @@ export class StatisticsService {
         "uniqueCategories":uniqueCategories,
         "interactionsPerHour": interactionsPerHour,
        };
-       console.log("zaq",stat);
        return  stat
        
     }

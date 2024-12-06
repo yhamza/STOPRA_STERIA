@@ -13,13 +13,14 @@ import { Roles } from '../roles/roles.decorator';
 import { Role } from '../roles/role.enum';
 
 // Jwt guards
-import { JwtAuthGuard } from '../guards/JwtAuth.Guard'; // Corrected import name
+import { JwtAuthGuard } from '../guards/JwtAuth.Guard';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post()
+  @Post()  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN) 
   @UsePipes(new ValidationPipe()) 
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
@@ -31,19 +32,18 @@ export class UserController {
     return this.userService.login(params, res);
   }
   
-  @UseGuards(JwtAuthGuard, RolesGuard) // Utilisez JwtAuthGuard et RolesGuard
+  @UseGuards(JwtAuthGuard, RolesGuard) 
+  @Roles(Role.ADMIN||Role.USER) 
   @Get('profile')
-  @Roles(Role.ADMIN) // Vérifiez que Role.ADMIN est bien défini
   async profile(@Req() req: any) {
     const authHeader = req.headers['authorization'];
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       throw new Error('Token non fourni ou format incorrect');
     }
-    
-    const token = authHeader.split(' ')[1]; // Récupérer le token après "Bearer"
+    const token = authHeader.split(' ')[1]; 
     return {
-      user: req.user, // Utilisateur décodé depuis le token JWT
-      token, // Token brut
+      user: req.user, 
+      token, 
     };
   }
   

@@ -5,15 +5,15 @@ export class CreateInteractionDto {
   
   @IsNotEmpty()
   @IsString()
-  userId: string; // ID de l'utilisateur associé à l'interaction
+  userId: string; 
 
   @IsNotEmpty()
   @IsString()
-  action: string; // Type d'action effectuée
+  action: string; 
 
   @IsOptional()
   @IsString()
-  category?: string; // Catégorie optionnelle pour classer l'action
+  category?: string; 
 
   @IsOptional()
   timestamp?: Date; 
