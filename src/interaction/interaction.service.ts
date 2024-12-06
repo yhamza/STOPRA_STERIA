@@ -84,7 +84,6 @@ export class InteractionService {
       
         .post(`${this.url}/caches`, Cachesformat)
         .toPromise();
-
         console.log("response from caches" , response.data);
         try {
           const response2=await this.httpService

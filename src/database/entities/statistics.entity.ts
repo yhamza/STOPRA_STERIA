@@ -5,6 +5,9 @@ export class StatisticsEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column()
+  userId : string
+
   @Column({ type: 'jsonb' })
   categoryBreakdown: {
       content_interaction: number;

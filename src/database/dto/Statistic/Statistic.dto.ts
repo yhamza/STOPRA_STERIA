@@ -1,6 +1,9 @@
 import { IsObject, IsNotEmpty, IsNumber, IsString, IsArray, IsDateString, IsOptional } from 'class-validator';
 
 export class CreateStatisticDTO {
+
+  userId : string
+
   categoryBreakdown: {
     content_interaction: number;
     auth_interaction: number;
